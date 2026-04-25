@@ -9,30 +9,28 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b-2 border-foreground bg-background">
-      <div className="flex items-center justify-between h-12 px-6 lg:px-12">
-        {/* Logo / name */}
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-foreground/8 bg-background/85 backdrop-blur-sm">
+      <div className="flex items-center justify-between h-12 px-6 lg:px-16">
         <Link
           href="/"
-          className="font-mono text-sm font-bold tracking-widest uppercase hover:text-accent transition-colors"
+          className="font-mono text-xs font-bold tracking-widest uppercase text-foreground/80 hover:text-accent transition-colors duration-200"
         >
           MS
         </Link>
 
-        {/* Nav links */}
         <nav className="flex items-center gap-0">
-          <Link
-            href="/"
-            className="font-mono text-xs font-bold uppercase tracking-widest px-4 h-12 flex items-center border-l-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
-          >
-            Home
-          </Link>
-          <Link
-            href="/blog"
-            className="font-mono text-xs font-bold uppercase tracking-widest px-4 h-12 flex items-center border-l-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
-          >
-            Blog
-          </Link>
+          {[
+            { href: "/", label: "Home" },
+            { href: "/blog", label: "Blog" },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground/70 hover:text-foreground px-4 h-12 flex items-center border-l border-foreground/10 hover:bg-foreground/5 transition-all duration-200"
+            >
+              {item.label}
+            </Link>
+          ))}
           {Object.values(DATA.contact.social)
             .filter((s) => s.navbar)
             .map((social) => (
@@ -41,20 +39,20 @@ export default function Navbar() {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-xs font-bold uppercase tracking-widest px-4 h-12 flex items-center border-l-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
+                className="font-mono text-xs uppercase tracking-widest text-muted-foreground/70 hover:text-foreground px-4 h-12 flex items-center border-l border-foreground/10 hover:bg-foreground/5 transition-all duration-200"
               >
                 {social.name}
               </Link>
             ))}
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="font-mono text-xs font-bold uppercase tracking-widest px-4 h-12 flex items-center border-l-2 border-foreground hover:bg-foreground hover:text-background transition-colors cursor-pointer"
+            className="text-muted-foreground/70 hover:text-foreground px-4 h-12 flex items-center border-l border-foreground/10 hover:bg-foreground/5 transition-all duration-200 cursor-pointer"
             aria-label="Toggle theme"
           >
             {theme === "dark" ? (
-              <SunIcon className="size-4" />
+              <SunIcon className="size-3.5" />
             ) : (
-              <MoonIcon className="size-4" />
+              <MoonIcon className="size-3.5" />
             )}
           </button>
         </nav>
