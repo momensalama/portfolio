@@ -1,26 +1,16 @@
-import BlurFade from "@/components/magicui/blur-fade";
 import { allPosts } from "content-collections";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { paginate, normalizePage } from "@/lib/pagination";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import BlogPostTitle from "@/components/blog-post-title";
 
 export const metadata: Metadata = {
   title: "Blog",
   description: "Thoughts on software development, life, and more.",
-  openGraph: {
-    title: "Blog",
-    description: "Thoughts on software development, life, and more.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Blog",
-    description: "Thoughts on software development, life, and more.",
-  },
 };
 
 const PAGE_SIZE = 5;
-const BLUR_FADE_DELAY = 0.04;
 
 export default async function BlogPage({
   searchParams,
@@ -28,14 +18,9 @@ export default async function BlogPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const { page: pageParam } = await searchParams;
-
-  const posts = allPosts;
-  const sortedPosts = [...posts].sort((a, b) => {
-    if (new Date(a.publishedAt) > new Date(b.publishedAt)) {
-      return -1;
-    }
-    return 1;
-  });
+  const sortedPosts = [...allPosts].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
 
   const totalPages = Math.ceil(sortedPosts.length / PAGE_SIZE);
   const currentPage = normalizePage(pageParam, totalPages);
@@ -45,97 +30,83 @@ export default async function BlogPage({
   });
 
   return (
-    <section id="blog">
-      <BlurFade delay={BLUR_FADE_DELAY}>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">Blog <span className="ml-1 bg-card border border-border rounded-md px-2 py-1 text-muted-foreground text-sm">{sortedPosts.length} posts</span></h1>
-        <p className="text-sm text-muted-foreground mb-8">
-          My thoughts on software development, life, and more.
+    <main className="min-h-[calc(100vh-48px)]">
+      {/* Header */}
+      <div className="border-b-2 border-foreground px-6 lg:px-12 py-10 grid-bg">
+        <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground block mb-4">
+          Writing
+        </span>
+        <h1 className="font-bold uppercase tracking-tighter leading-none"
+          style={{ fontSize: "clamp(48px, 8vw, 96px)" }}>
+          Blog
+        </h1>
+        <p className="font-mono text-sm text-muted-foreground mt-4">
+          {sortedPosts.length} post{sortedPosts.length !== 1 ? "s" : ""} — thoughts on software &amp; more
         </p>
-      </BlurFade>
+      </div>
 
+      {/* Posts */}
       {paginatedPosts.length > 0 ? (
-        <>
-          <BlurFade delay={BLUR_FADE_DELAY * 2}>
-            <div className="flex flex-col gap-5">
-              {paginatedPosts.map((post, id) => {
-                const slug = post._meta.path.replace(/\.mdx$/, "");
-                const indexNumber = (pagination.page - 1) * PAGE_SIZE + id + 1;
-                return (
-                  <BlurFade delay={BLUR_FADE_DELAY * 3 + id * 0.05} key={slug}>
-                    <Link
-                      className="flex items-start gap-x-2 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      href={`/blog/${slug}`}
-                    >
-                      <span className="text-xs font-mono tabular-nums font-medium mt-[5px]">
-                        {String(indexNumber).padStart(2, "0")}.
-                      </span>
-                      <div className="flex flex-col gap-y-2 flex-1">
-                        <p className="tracking-tight text-lg font-medium">
-                          <span className="group-hover:text-foreground transition-colors">
-                            {post.title}
-                            <ChevronRight
-                              className="ml-1 inline-block size-4 stroke-3 text-muted-foreground opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0"
-                              aria-hidden
-                            />
-                          </span>
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {post.publishedAt}
-                        </p>
-                      </div>
-                    </Link>
-                  </BlurFade>
-                );
-              })}
-            </div>
-          </BlurFade>
+        <div>
+          {paginatedPosts.map((post, id) => {
+            const slug = post._meta.path.replace(/\.mdx$/, "");
+            const num = (pagination.page - 1) * PAGE_SIZE + id + 1;
+            return (
+              <Link
+                key={slug}
+                href={`/blog/${slug}`}
+                className="flex items-start gap-6 px-6 lg:px-12 py-8 border-b-2 border-foreground group hover:bg-foreground hover:text-background transition-colors"
+              >
+                <span className="font-mono text-xs font-bold text-muted-foreground group-hover:text-background/60 mt-1.5 flex-shrink-0">
+                  {String(num).padStart(2, "0")}
+                </span>
+                <div className="flex-1 flex flex-col gap-2">
+                  <div className="font-bold text-xl uppercase tracking-tight leading-tight">
+                    <BlogPostTitle title={post.title} />
+                  </div>
+                  <span className="font-mono text-xs text-muted-foreground group-hover:text-background/60">
+                    {post.publishedAt}
+                  </span>
+                </div>
+                <ArrowRight className="size-5 mt-1 flex-shrink-0 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+              </Link>
+            );
+          })}
 
-          {/* Pagination Controls */}
+          {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <BlurFade delay={BLUR_FADE_DELAY * 4}>
-              <div className="flex gap-3 flex-row items-center justify-between mt-8">
-                <div className="text-sm text-muted-foreground">
-                  Page {pagination.page} of {pagination.totalPages}
-                </div>
-                <div className="flex gap-2 sm:justify-end">
-                  {pagination.hasPreviousPage ? (
-                    <Link
-                      href={`/blog?page=${pagination.page - 1}`}
-                      className="h-8 w-fit px-2 flex items-center justify-center text-sm border border-border rounded-lg hover:bg-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      Previous
-                    </Link>
-                  ) : (
-                    <span className="h-8 w-fit px-2 flex items-center justify-center text-sm border border-border rounded-lg opacity-50 cursor-not-allowed">
-                      Previous
-                    </span>
-                  )}
-                  {pagination.hasNextPage ? (
-                    <Link
-                      href={`/blog?page=${pagination.page + 1}`}
-                      className="h-8 w-fit px-2 flex items-center justify-center text-sm border border-border rounded-lg hover:bg-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      Next
-                    </Link>
-                  ) : (
-                    <span className="h-8 w-fit px-2 flex items-center justify-center text-sm border border-border rounded-lg opacity-50 cursor-not-allowed">
-                      Next
-                    </span>
-                  )}
-                </div>
+            <div className="flex items-center justify-between px-6 lg:px-12 py-6 border-b-2 border-foreground">
+              <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
+                Page {pagination.page} / {pagination.totalPages}
+              </span>
+              <div className="flex gap-0">
+                {pagination.hasPreviousPage ? (
+                  <Link
+                    href={`/blog?page=${pagination.page - 1}`}
+                    className="font-mono text-xs font-bold uppercase tracking-widest border-2 border-foreground px-4 py-2 hover:bg-foreground hover:text-background transition-colors"
+                  >
+                    ← Prev
+                  </Link>
+                ) : null}
+                {pagination.hasNextPage ? (
+                  <Link
+                    href={`/blog?page=${pagination.page + 1}`}
+                    className="font-mono text-xs font-bold uppercase tracking-widest border-2 border-foreground px-4 py-2 -ml-[2px] hover:bg-foreground hover:text-background transition-colors"
+                  >
+                    Next →
+                  </Link>
+                ) : null}
               </div>
-            </BlurFade>
+            </div>
           )}
-        </>
+        </div>
       ) : (
-        <BlurFade delay={BLUR_FADE_DELAY * 2}>
-          <div className="flex flex-col items-center justify-center py-12 px-4 border border-border rounded-xl">
-            <p className="text-muted-foreground text-center">
-              No blog posts yet. Check back soon!
-            </p>
-          </div>
-        </BlurFade>
+        <div className="px-6 lg:px-12 py-24 border-b-2 border-foreground">
+          <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
+            No posts yet — check back soon.
+          </p>
+        </div>
       )}
-    </section>
+    </main>
   );
 }

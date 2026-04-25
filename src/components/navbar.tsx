@@ -1,97 +1,64 @@
-import { Dock, DockIcon } from "@/components/magicui/dock";
-import { ModeToggle } from "@/components/mode-toggle";
-import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipArrow,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+"use client";
+
+import Link from "next/link";
+import { useTheme } from "next-themes";
+import { SunIcon, MoonIcon } from "@radix-ui/react-icons";
 import { DATA } from "@/data/resume";
 
 export default function Navbar() {
+  const { theme, setTheme } = useTheme();
+
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30">
-      <Dock className="z-50 pointer-events-auto relative h-14 p-2 w-fit mx-auto flex gap-2 border bg-card/90 backdrop-blur-3xl shadow-[0_0_10px_3px] shadow-primary/5">
-        {DATA.navbar.map((item) => {
-          const isExternal = item.href.startsWith("http");
-          return (
-            <Tooltip key={item.href}>
-              <TooltipTrigger asChild>
-                <a
-                  href={item.href}
-                  target={isExternal ? "_blank" : undefined}
-                  rel={isExternal ? "noopener noreferrer" : undefined}
-                >
-                  <DockIcon className="rounded-3xl cursor-pointer size-full bg-background p-0 text-muted-foreground hover:text-foreground hover:bg-muted backdrop-blur-3xl border border-border transition-colors">
-                    <item.icon className="size-full rounded-sm overflow-hidden object-contain" />
-                  </DockIcon>
-                </a>
-              </TooltipTrigger>
-              <TooltipContent
-                side="top"
-                sideOffset={8}
-                className="rounded-xl bg-primary text-primary-foreground px-4 py-2 text-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]"
-              >
-                <p>{item.label}</p>
-                <TooltipArrow className="fill-primary" />
-              </TooltipContent>
-            </Tooltip>
-          );
-        })}
-        <Separator
-          orientation="vertical"
-          className="h-2/3 m-auto w-px bg-border"
-        />
-        {Object.entries(DATA.contact.social)
-          .filter(([_, social]) => social.navbar)
-          .map(([name, social], index) => {
-            const isExternal = social.url.startsWith("http");
-            const IconComponent = social.icon;
-            return (
-              <Tooltip key={`social-${name}-${index}`}>
-                <TooltipTrigger asChild>
-                  <a
-                    href={social.url}
-                    target={isExternal ? "_blank" : undefined}
-                    rel={isExternal ? "noopener noreferrer" : undefined}
-                  >
-                    <DockIcon className="rounded-3xl cursor-pointer size-full bg-background p-0 text-muted-foreground hover:text-foreground hover:bg-muted backdrop-blur-3xl border border-border transition-colors">
-                      <IconComponent className="size-full rounded-sm overflow-hidden object-contain" />
-                    </DockIcon>
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="top"
-                  sideOffset={8}
-                  className="rounded-xl bg-primary text-primary-foreground px-4 py-2 text-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]"
-                >
-                  <p>{name}</p>
-                  <TooltipArrow className="fill-primary" />
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        <Separator
-          orientation="vertical"
-          className="h-2/3 m-auto w-px bg-border"
-        />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DockIcon className="rounded-3xl cursor-pointer size-full bg-background p-0 text-muted-foreground hover:text-foreground hover:bg-muted backdrop-blur-3xl border border-border transition-colors">
-              <ModeToggle className="size-full cursor-pointer" />
-            </DockIcon>
-          </TooltipTrigger>
-          <TooltipContent
-            side="top"
-            sideOffset={8}
-            className="rounded-xl bg-primary text-primary-foreground px-4 py-2 text-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]"
+    <header className="fixed top-0 left-0 right-0 z-50 border-b-2 border-foreground bg-background">
+      <div className="flex items-center justify-between h-12 px-6 lg:px-12">
+        {/* Logo / name */}
+        <Link
+          href="/"
+          className="font-mono text-sm font-bold tracking-widest uppercase hover:text-accent transition-colors"
+        >
+          MS
+        </Link>
+
+        {/* Nav links */}
+        <nav className="flex items-center gap-0">
+          <Link
+            href="/"
+            className="font-mono text-xs font-bold uppercase tracking-widest px-4 h-12 flex items-center border-l-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
           >
-            <p>Theme</p>
-            <TooltipArrow className="fill-primary" />
-          </TooltipContent>
-        </Tooltip>
-      </Dock>
-    </div>
+            Home
+          </Link>
+          <Link
+            href="/blog"
+            className="font-mono text-xs font-bold uppercase tracking-widest px-4 h-12 flex items-center border-l-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
+          >
+            Blog
+          </Link>
+          {Object.values(DATA.contact.social)
+            .filter((s) => s.navbar)
+            .map((social) => (
+              <Link
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs font-bold uppercase tracking-widest px-4 h-12 flex items-center border-l-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
+              >
+                {social.name}
+              </Link>
+            ))}
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="font-mono text-xs font-bold uppercase tracking-widest px-4 h-12 flex items-center border-l-2 border-foreground hover:bg-foreground hover:text-background transition-colors cursor-pointer"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <SunIcon className="size-4" />
+            ) : (
+              <MoonIcon className="size-4" />
+            )}
+          </button>
+        </nav>
+      </div>
+    </header>
   );
 }
