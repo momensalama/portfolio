@@ -7,7 +7,7 @@ import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DATA } from "@/data/resume";
 
-import VariableFontCursorProximity from "@/components/fancy/variable-font-cursor-proximity";
+import VariableFontCursorProximity from "@/components/fancy/text/variable-font-cursor-proximity";
 import BreathingText from "@/components/fancy/breathing-text";
 import TextHighlighter from "@/components/fancy/text-highlighter";
 import ScrambleIn from "@/components/fancy/scramble-in";
@@ -49,13 +49,13 @@ function Section({
   label: string;
 }) {
   return (
-    <section className="border-t border-foreground/8 px-6 lg:px-16 py-20">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-16">
+    <section className="border-t border-foreground/8 px-6 lg:px-16 py-12 lg:py-20">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-5 lg:gap-16">
         {/* Index + label */}
         <div className="lg:w-40 shrink-0 flex lg:flex-col items-baseline gap-3 lg:gap-2 pt-0.5">
-          <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground font-bold">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground font-bold">
             {label}
-          </span>
+          </h2>
         </div>
         {/* Content */}
         <div className="flex-1 min-w-0">{children}</div>
@@ -113,23 +113,27 @@ export default function Page() {
                 style={{ fontSize: "clamp(70px, 13.5vw, 164px)" }}
               >
                 <VariableFontCursorProximity
-                  label={DATA.name.split(" ")[0]}
+                  as="span"
                   fromFontVariationSettings="'wght' 200"
                   toFontVariationSettings="'wght' 900"
                   radius={150}
                   falloff="gaussian"
                   containerRef={containerRef}
                   className="font-variable block"
-                />
+                >
+                  {DATA.name.split(" ")[0]}
+                </VariableFontCursorProximity>
                 <VariableFontCursorProximity
-                  label={DATA.name.split(" ")[1]}
+                  as="span"
                   fromFontVariationSettings="'wght' 200"
                   toFontVariationSettings="'wght' 900"
                   radius={150}
                   falloff="gaussian"
                   containerRef={containerRef}
                   className="font-variable block text-foreground/18"
-                />
+                >
+                  {DATA.name.split(" ")[1]}
+                </VariableFontCursorProximity>
               </h1>
 
               {/* Pill + description directly under name */}
@@ -165,7 +169,7 @@ export default function Page() {
               <div className="absolute inset-[-12px] bg-accent/10 blur-2xl rounded-full" />
               <div className="border border-foreground/20 p-0.5 relative rotate-1 hover:rotate-0 transition-transform duration-500">
                 <Avatar className="size-48 lg:size-64 rounded-none">
-                  <AvatarImage alt={DATA.name} src={DATA.avatarUrl} className="object-cover" />
+                  <AvatarImage alt={DATA.name} src={DATA.avatarUrl} className="object-cover" fetchPriority="high" />
                   <AvatarFallback className="rounded-none font-mono font-bold text-sm bg-card">
                     {DATA.initials}
                   </AvatarFallback>
@@ -213,7 +217,7 @@ export default function Page() {
           {DATA.skills.map((s) => (
             <span
               key={s.name}
-              className="font-mono text-xs uppercase tracking-widest text-muted-foreground/50 whitespace-nowrap"
+              className="font-mono text-xs uppercase tracking-widest text-muted-foreground whitespace-nowrap"
             >
               {s.name}
             </span>
@@ -274,12 +278,12 @@ export default function Page() {
       </Section>
 
       {/* ════════════ PROJECTS ════════════ */}
-      <section className="border-t border-foreground/8 px-6 lg:px-16 py-20">
+      <section className="border-t border-foreground/8 px-6 lg:px-16 py-12 lg:py-20">
         <div className="max-w-7xl mx-auto">
-          <Reveal className="mb-14">
-            <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground font-bold">
+          <Reveal className="mb-8 lg:mb-14">
+            <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground font-bold">
               Projects
-            </span>
+            </h2>
           </Reveal>
 
           <div className="flex flex-col">
@@ -405,7 +409,7 @@ export default function Page() {
       </Section>
 
       {/* ════════════ CONTACT ════════════ */}
-      <section className="relative border-t border-foreground/8 px-6 lg:px-16 pt-24 pb-16 overflow-hidden">
+      <section className="relative border-t border-foreground/8 px-6 lg:px-16 pt-14 pb-12 lg:pt-24 lg:pb-16 overflow-hidden">
         {/* Cinematic glow */}
         <div className="absolute inset-0 pointer-events-none -z-10">
           <div className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[80vw] h-[40vw] max-w-[900px] bg-accent/8 rounded-full blur-[130px]" />
@@ -456,10 +460,10 @@ export default function Page() {
           </Reveal>
 
           <div className="flex items-center justify-between mt-20 pt-6 border-t border-foreground/6">
-            <span className="font-mono text-xs text-muted-foreground/50 uppercase tracking-widest">
+            <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
               © {new Date().getFullYear()} {DATA.name}
             </span>
-            <span className="font-mono text-xs text-muted-foreground/50 uppercase tracking-widest">
+            <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
               Frontend Engineer
             </span>
           </div>

@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { DATA } from "@/data/resume";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
 const geist = Geist({
@@ -17,6 +17,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-mono",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter-var",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -62,11 +68,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://rsms.me" crossOrigin="anonymous" />
+        <link rel="preload" as="style" href="https://rsms.me/inter/inter.css" />
+        <link rel="preload" as="image" href="/me.webp" fetchPriority="high" />
+      </head>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased relative",
           geist.variable,
-          geistMono.variable
+          geistMono.variable,
+          inter.variable
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
