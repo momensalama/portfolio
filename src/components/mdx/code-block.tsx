@@ -2,19 +2,15 @@
 
 import { useState, useRef, useEffect, type ComponentProps } from "react";
 import { Copy, Check } from "lucide-react";
-import { Button } from "../ui/button";
-import { codeToHtml } from "shiki/bundle/web";
+import { codeToHtml, type BundledLanguage } from "shiki/bundle/web";
 import { cn } from "@/lib/utils";
 
-type CodeBlockProps = ComponentProps<"pre">;
-
 function extractLanguage(className?: string): string {
-  if (!className) return "plaintext";
-  const match = className.match(/language-([a-z0-9-]+)/i);
+  const match = className?.match(/language-([a-z0-9-]+)/i);
   return match ? match[1] : "plaintext";
 }
 
-export function CodeBlock({ children, ...props }: CodeBlockProps) {
+export function CodeBlock({ children, ...props }: ComponentProps<"pre">) {
   const [copied, setCopied] = useState(false);
   const [{ html, className, title }, setRenderState] = useState<{
     html: string;
@@ -24,26 +20,20 @@ export function CodeBlock({ children, ...props }: CodeBlockProps) {
   const preRef = useRef<HTMLPreElement>(null);
 
   useEffect(() => {
-    const pre = preRef.current;
-    const codeEl = pre?.querySelector("code");
-    if (!pre || !codeEl) return;
+    const codeEl = preRef.current?.querySelector("code");
+    if (!codeEl) return;
 
-    const codeText = codeEl.textContent || "";
     const lang = extractLanguage(codeEl.className);
     const nextTitle = codeEl.getAttribute("data-title");
     const nextClassName = codeEl.className || "";
 
-    void codeToHtml(codeText, {
-      lang: lang as any,
-      themes: {
-        light: "github-light",
-        dark: "github-dark",
-      },
+    void codeToHtml(codeEl.textContent || "", {
+      lang: lang as BundledLanguage,
+      themes: { light: "github-light", dark: "github-dark" },
       defaultColor: false,
     })
-      .then((html) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
+      .then((highlighted) => {
+        const doc = new DOMParser().parseFromString(highlighted, "text/html");
         setRenderState({
           html: doc.querySelector("code")?.innerHTML ?? "",
           className: nextClassName,
@@ -57,9 +47,8 @@ export function CodeBlock({ children, ...props }: CodeBlockProps) {
   }, [children]);
 
   const handleCopy = async () => {
-    const code = preRef.current?.textContent || "";
     try {
-      await navigator.clipboard.writeText(code);
+      await navigator.clipboard.writeText(preRef.current?.textContent || "");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
@@ -68,43 +57,43 @@ export function CodeBlock({ children, ...props }: CodeBlockProps) {
   };
 
   return (
-    <div className="group relative rounded-xl overflow-hidden border border-border">
+    <div className="group relative my-6 overflow-hidden rounded-lg border bg-muted">
+      {title && (
+        <div className="border-b px-4 py-2 font-mono text-xs text-muted-foreground">
+          {title}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={handleCopy}
+        aria-label={copied ? "Code copied" : "Copy code"}
+        className={cn(
+          "absolute right-3 cursor-pointer rounded-md border bg-background p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100",
+          title ? "top-12" : "top-3"
+        )}
+      >
+        {copied ? (
+          <Check className="size-3.5" aria-hidden />
+        ) : (
+          <Copy className="size-3.5" aria-hidden />
+        )}
+      </button>
+
       <pre
         ref={preRef}
         {...props}
-        className={cn("p-0! m-0! overflow-x-auto", props.className)}
+        className={cn("overflow-x-auto text-[13px] leading-relaxed", props.className)}
       >
-        {title && (
-          <div className="p-3 text-xs font-medium border-b border-border rounded-t-xl bg-muted/50 text-foreground">
-            {title}
-          </div>
+        {html ? (
+          <code
+            className={cn("shiki block whitespace-pre", className)}
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        ) : (
+          children
         )}
-
-        <Button
-          onClick={handleCopy}
-          variant="outline"
-          size="icon"
-          className={cn("absolute size-8 text-primary cursor-pointer right-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity rounded-md border border-border shadow-none", title ? "top-13" : "top-3", props.className)}
-          aria-label="Copy code"
-        >
-          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-        </Button>
-        {html && (
-          <div className="p-3">
-            <code
-              className={`shiki ${className}`}
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
-          </div>
-        )}
-
-        {!html && (
-          <div className="p-4">
-            {children}
-          </div>
-        )}
-      </pre >
-    </div >
+      </pre>
+    </div>
   );
 }
-
